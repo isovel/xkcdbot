@@ -1,0 +1,37 @@
+require('dotenv').config();
+const { REST } = require('@discordjs/rest');
+const { Routes } = require('discord-api-types/v9');
+const fs = require('fs');
+
+const Logger = require('./logger');
+
+const logger = new Logger('slashbuilder');
+
+const commands = [];
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+
+const clientId = '922278860165365780';
+const guildId = '255808649249816576';
+
+for (const file of commandFiles) {
+	const command = require(`./commands/${file}`);
+	commands.push(command.data.toJSON());
+}
+
+const rest = new REST({ version: '9' }).setToken(process.env.TOKEN);
+
+(async () => {
+	try {
+		logger.info('Started refreshing application (/) commands.');
+
+		await rest.put(
+			Routes.applicationGuildCommands(clientId, guildId),
+			//Routes.applicationCommands(clientId),
+			{ body: commands },
+		);
+
+		logger.info('Successfully reloaded application (/) commands.');
+	} catch (error) {
+		console.error(error);
+	}
+})();
