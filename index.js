@@ -2,7 +2,7 @@ require('dotenv').config();
 const { Client, Collection, Intents } = require('discord.js');
 
 const Logger = require('./logger');
-const { unhandledInteraction, handleCommandInteraction } = require('./interactions');
+const { handleCommandInteraction } = require('./interactions');
 
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 const logger = new Logger('client');
