@@ -1,7 +1,4 @@
-const { MessagePayload } = require('discord.js');
-
 const Logger = require('./logger');
-const { guilds } = require('./config.json');
 
 const logger = new Logger('interactions');
 
@@ -13,16 +10,23 @@ const unhandledInteraction = async (interaction, dataType, data) => {
     });
 };
 
-const handleCommandInteraction = async (interaction) => {
+const handleCommandInteraction = async (commands, interaction) => {
+    if (!interaction.isCommand()) return;
     logger.info(`New interaction of type ${interaction.type} with name ${interaction.commandName}`);
-    switch (interaction.commandName) {
-        default:
-            unhandledInteraction(interaction, 'command', interaction.commandName);
-            break;
+    const command = commands.get(interaction.commandName);
+	if (!command) {
+        unhandledInteraction(interaction, 'command', interaction.commandName);
+        return;
     }
+	try {
+		await command.execute(interaction);
+	} catch (error) {
+		unhandledInteraction(interaction, 'error', error);
+	}
 };
 
 const handleButtonInteraction = async (interaction) => {
+    if (!interaction.isButton()) return;
     logger.info(`New interaction of type ${interaction.type} with customId ${interaction.customId}`);
     const buttonId = interaction.customId;
     switch (buttonId) {
@@ -33,6 +37,7 @@ const handleButtonInteraction = async (interaction) => {
 };
 
 const handleSelectMenuInteraction = async (interaction) => {
+    if (!interaction.isSelectMenu()) return;
     logger.info(`New interaction of type ${interaction.type} with customId ${interaction.customId}`);
     const menuId = interaction.customId;
     switch (menuId) {
@@ -42,17 +47,4 @@ const handleSelectMenuInteraction = async (interaction) => {
     }
 };
 
-module.exports = async (interaction) => {
-    switch (interaction.type) {
-        case 'APPLICATION_COMMAND':
-            handleCommandInteraction(interaction);
-            break;
-        case 'MESSAGE_COMPONENT':
-            interaction.isButton() && handleButtonInteraction(interaction);
-            interaction.isSelectMenu() && handleSelectMenuInteraction(interaction);
-            break;
-        default:
-            unhandledInteraction(interaction, 'interaction type', interaction.type);
-            break;
-    }
-};
+module.exports = { unhandledInteraction, handleCommandInteraction, handleButtonInteraction, handleSelectMenuInteraction };
