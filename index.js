@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { Client, Intents } = require('discord.js');
+const { Client, Collection, Intents } = require('discord.js');
 
 const Logger = require('./logger');
 const { unhandledInteraction, handleCommandInteraction } = require('./interactions');
