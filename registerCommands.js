@@ -10,7 +10,7 @@ const logger = new Logger('slashbuilder');
 const commands = [];
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
-const clientId = '922278860165365780';
+const clientId = '709443447148249228';
 const guildId = '255808649249816576';
 
 for (const file of commandFiles) {
